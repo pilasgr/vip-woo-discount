@@ -90,9 +90,3 @@ add_filter('woocommerce_product_variation_get_regular_price', 'apply_vip_woo_dis
 add_filter('woocommerce_product_variation_get_price', 'apply_vip_woo_discount', 10, 2);
 add_filter('woocommerce_product_get_sale_price', 'apply_vip_woo_discount', 10, 2);
 add_filter('woocommerce_product_variation_get_sale_price', 'apply_vip_woo_discount', 10, 2);
-
-// Προσθήκη του κειμένου στο υποσέλιδο
-function pilas_footer_credit() {
-    echo '<p style="text-align: center;">Δημιουργήθηκε από το <a href="https://pilas.gr" target="_blank">Pilas.Gr</a></p>';
-}
-add_action('wp_footer', 'pilas_footer_credit');
