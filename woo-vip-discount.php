@@ -2,7 +2,7 @@
 /*
 Plugin Name: VIP Woo Discount
 Description: Προσθέτει έκπτωση βάσει ρόλου χρήστη στα προϊόντα του WooCommerce.
-Version: 1.0
+Version: 1.1
 Author: Pilas.Gr - Go Brand Yourself
 */
 
@@ -12,34 +12,50 @@ function vip_woo_discount_menu() {
 }
 add_action('admin_menu', 'vip_woo_discount_menu');
 
-
 // Σελίδα ρυθμίσεων
 function vip_woo_discount_options_page() {
     ?>
     <div class="wrap">
         <h2>VIP Woo Discount Ρυθμίσεις</h2>
+
+        <!-- Ρυθμίσεις Έκπτωσης -->
         <form method="post" action="options.php">
             <?php
             settings_fields('vip_woo_discount_options');
-            do_settings_sections('vip-woo-discount');
-            submit_button();
+            do_settings_sections('vip-woo-discount-main');
+            submit_button('Αποθήκευση Ρυθμίσεων');
             ?>
         </form>
+
+        <!-- Προσθήκη Νέου Ρόλου -->
+        <h3>Προσθήκη Νέου Ρόλου</h3>
+        <form method="post" action="options.php">
+            <?php
+            settings_fields('vip_woo_discount_options');
+            do_settings_sections('vip-woo-discount-new-role');
+            submit_button('Προσθήκη Ρόλου');
+            ?>
+        </form>
+
         <p style="text-align: center; margin-top: 50px; font-size: 20px;">Δημιουργήθηκε από το <a href="https://pilas.gr" target="_blank"><img width="70px" src="https://www.pilas.gr/sign/logo.png"/></a></p>
     </div>
     <?php
 }
 
-
 // Ρυθμίσεις και πεδία
 function vip_woo_discount_settings() {
     register_setting('vip_woo_discount_options', 'b2b_discount_role');
     register_setting('vip_woo_discount_options', 'b2b_discount_percentage');
+    register_setting('vip_woo_discount_options', 'new_role_title', 'vip_woo_create_new_role');
 
-    add_settings_section('vip_woo_discount_main', 'Εισάγετε τις επιλογές σας', null, 'vip-woo-discount');
+    // Κύριες Ρυθμίσεις
+    add_settings_section('vip_woo_discount-main', 'Εισάγετε τις επιλογές σας', null, 'vip-woo-discount-main');
+    add_settings_field('b2b_discount_role', 'Ρόλος με έκπτωση', 'b2b_discount_role_callback', 'vip-woo-discount-main', 'vip_woo_discount-main');
+    add_settings_field('b2b_discount_percentage', 'Ποσοστό έκπτωσης', 'b2b_discount_percentage_callback', 'vip-woo-discount-main', 'vip_woo_discount-main');
 
-    add_settings_field('b2b_discount_role', 'Ρόλος με έκπτωση', 'b2b_discount_role_callback', 'vip-woo-discount', 'vip_woo_discount_main');
-    add_settings_field('b2b_discount_percentage', 'Ποσοστό έκπτωσης', 'b2b_discount_percentage_callback', 'vip-woo-discount', 'vip_woo_discount_main');
+    // Ρυθμίσεις Νέου Ρόλου
+    add_settings_section('vip_woo_discount-new-role', 'Εισάγετε τον τίτλο του νέου ρόλου', null, 'vip-woo-discount-new-role');
+    add_settings_field('new_role_title', 'Τίτλος νέου ρόλου', 'new_role_title_callback', 'vip-woo-discount-new-role', 'vip_woo_discount-new-role');
 }
 add_action('admin_init', 'vip_woo_discount_settings');
 
@@ -58,6 +74,19 @@ function b2b_discount_role_callback() {
 function b2b_discount_percentage_callback() {
     $setting = esc_attr(get_option('b2b_discount_percentage', ''));
     echo "<input type='text' name='b2b_discount_percentage' value='$setting' />";
+}
+
+function new_role_title_callback() {
+    $setting = esc_attr(get_option('new_role_title', ''));
+    echo "<input type='text' name='new_role_title' value='$setting' />";
+}
+
+// Δημιουργία του νέου ρόλου όταν αποθηκεύονται οι ρυθμίσεις
+function vip_woo_create_new_role($new_role_title) {
+    if (!empty($new_role_title) && !get_role($new_role_title)) {
+        add_role($new_role_title, $new_role_title, array('read' => true));
+    }
+    return $new_role_title;
 }
 
 // Εφαρμογή της έκπτωσης στα προϊόντα βάσει του ρόλου και του ποσοστού
