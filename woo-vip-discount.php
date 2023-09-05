@@ -2,7 +2,7 @@
 /*
 Plugin Name: VIP Woo Discount
 Description: Προσθέτει έκπτωση βάσει ρόλου χρήστη στα προϊόντα του WooCommerce.
-Version: 1.3
+Version: 1.2
 Author: Pilas.Gr - Go Brand Yourself
 */
 
@@ -140,3 +140,61 @@ add_filter('woocommerce_product_variation_get_regular_price', 'apply_vip_woo_dis
 add_filter('woocommerce_product_variation_get_price', 'apply_vip_woo_discount', 10, 2);
 add_filter('woocommerce_product_get_sale_price', 'apply_vip_woo_discount', 10, 2);
 add_filter('woocommerce_product_variation_get_sale_price', 'apply_vip_woo_discount', 10, 2);
+
+
+// Συνάρτηση για την εμφάνιση των πληροφοριών του ρόλου και της έκπτωσης
+function display_role_and_discount_on_my_account() {
+    if (is_user_logged_in()) {
+        $user = wp_get_current_user();
+        $discounts = get_option('b2b_discounts', array());
+
+        // Έναρξη της στοίχισης
+        echo '<div class="account-role-discount">';
+        
+        // Προσθέστε την κεφαλίδα "Προνόμια χρήστη" εδώ
+        echo '<strong><font color="#000">Προνόμια χρήστη</font></strong>';
+
+        foreach ($user->roles as $role) {
+            $role_name = translate_user_role($role);
+            $discount_percentage = isset($discounts[$role]) ? floatval($discounts[$role]) : 0;
+
+            echo '<div class="account-info-item"><span class="account-info-label">Ρόλος:</span> <span class="account-info-value">' . esc_html($role_name) . '</span></div>';
+            echo '<div class="account-info-item"><span class="account-info-label">Έκπτωση που δικαιούστε:</span> <span class="account-info-value">' . esc_html($discount_percentage) . '%</span></div>';
+        }
+
+        // Λήξη της στοίχισης
+        echo '</div>';
+    }
+}
+
+
+// Συνδέει τη συνάρτηση στο hook για την εμφάνιση στη σελίδα "My Account"
+add_action('woocommerce_account_dashboard', 'display_role_and_discount_on_my_account');
+
+// Προσθήκη CSS για την εμφάνιση
+function add_role_discount_css() {
+    echo '<style>
+        .account-role-discount {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            margin-top: 50px;
+        }
+        .account-info-item {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 10px 0;
+        }
+        .account-info-label {
+            font-weight: bold;
+        }
+        .account-info-value {
+            color: #333;
+        }
+    </style>';
+}
+
+add_action('wp_head', 'add_role_discount_css');
