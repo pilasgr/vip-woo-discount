@@ -2,7 +2,7 @@
 /*
 Plugin Name: VIP Woo Discount
 Description: Προσθέτει έκπτωση βάσει ρόλου χρήστη στα προϊόντα του WooCommerce.
-Version: 1.2
+Version: 1.3
 Author: Pilas.Gr - Go Brand Yourself
 */
 
